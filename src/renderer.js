@@ -31,8 +31,11 @@ ipc.on('select-output', (event, path) => {
 const processImages = () => {
   const fs = require('fs');
   const path = require('path');
+  const os = require('os');
   const { nativeImage } = require('electron');
   const moment = require('moment');
+
+  const systemOS = os.platform();
 
   let fileFormat = 'png';
   fileFormat = document.querySelector('input[name="file-type"]:checked').value;
@@ -40,40 +43,54 @@ const processImages = () => {
   const srcDir = document.getElementById('selected-source').innerHTML;
   const outputDir = document.getElementById('selected-output').innerHTML;
 
-  const largeImageDir = `${outputDir}/largeImage`;
-  const thumbImageDir = `${outputDir}/thumb`;
-  const smallThumbDir = `${outputDir}/smallThumb`;
-
-  try {
-    fs.accessSync(outputDir, fs.constants.W_OK);
-    console.log('Output directory is writable.');
-  } catch (err) {
-    console.error('Error: Output directory is not accessible.');
-    process.exit(1);
+  let largeImageDir = null;
+  let thumbImageDir = null;
+  let smallThumbDir = null;
+  if (systemOS == 'win32') {
+    largeImageDir = `${outputDir}\\largeImage`;
+    thumbImageDir = `${outputDir}\\thumb`;
+    smallThumbDir = `${outputDir}\\smallThumb`;
+  } else {
+    largeImageDir = `${outputDir}/largeImage`;
+    thumbImageDir = `${outputDir}/thumb`;
+    smallThumbDir = `${outputDir}/smallThumb`;
   }
 
-  try {
-    fs.accessSync(largeImageDir, fs.constants.F_OK);
-    console.log('LargeImage output directory exists.');
-  } catch (err) {
-    console.log(`Creating largeImage directory: ${largeImageDir}`);
-    fs.mkdirSync(largeImageDir);
+  fs.accessSync(outputDir, fs.constants.W_OK, (error) => {
+    if (error) {
+      console.error('Error: Output directory is not accessible.');
+      process.exit(1);
+    }
+  });
+
+  if (!(fs.existsSync(largeImageDir))) {
+    try {
+      fs.mkdirSync(largeImageDir);
+      console.log(`Created largeImage directory: ${largeImageDir}`);
+    } catch (err) {
+      console.error('Error: Unable to create largeImage directory.');
+      process.exit(1);
+    }
   }
 
-  try {
-    fs.accessSync(thumbImageDir, fs.constants.F_OK);
-    console.log('Thumb output directory exists.');
-  } catch (err) {
-    console.log(`Creating thumb directory: ${thumbImageDir}`);
-    fs.mkdirSync(thumbImageDir);
+  if (!(fs.existsSync(thumbImageDir))) {
+    try {
+      fs.mkdirSync(thumbImageDir);
+      console.log(`Created thumbImage directory: ${thumbImageDir}`);
+    } catch (err) {
+      console.error('Error: Unable to create thumbImage directory.');
+      process.exit(1);
+    }
   }
 
-  try {
-    fs.accessSync(smallThumbDir, fs.constants.F_OK);
-    console.log('SmallThumb output directory exists.');
-  } catch (err) {
-    console.log(`Creating smallThumb directory: ${smallThumbDir}`);
-    fs.mkdirSync(smallThumbDir);
+  if (!(fs.existsSync(smallThumbDir))) {
+    try {
+      fs.mkdirSync(smallThumbDir);
+      console.log(`Created smallThumbImage directory: ${smallThumbDir}`);
+    } catch (err) {
+      console.error('Error: Unable to create smallThumbImage directory.');
+      process.exit(1);
+    }
   }
 
   fs.readdir(srcDir, (err, files) => {
@@ -91,35 +108,70 @@ const processImages = () => {
 
     files.forEach((file) => {
       const fileName = path.parse(file).name;
-      const fileDir = `${srcDir}/${file}`;
+      
+      let fileDir = null;
+      if (systemOS == 'win32') {
+        fileDir = `${srcDir}\\${file}`;
+      } else {
+        fileDir = `${srcDir}/${file}`;
+      }
 
       const fileNameExt = path.basename(file);
 
-      const largeImageOutput = `${largeImageDir}/${fileName}-800px.${fileFormat}`;
-      const thumbImageOutput = `${thumbImageDir}/${fileName}-400px.${fileFormat}`;
-      const smallThumbOutput = `${smallThumbDir}/${fileName}-100px.${fileFormat}`;
+      let largeImageOutput = null;
+      let thumbImageOutput = null;
+      let smallThumbOutput = null;
+      if (systemOS == 'win32') {
+        largeImageOutput = `${largeImageDir}\\${fileName}-800px.${fileFormat}`;
+        thumbImageOutput = `${thumbImageDir}\\${fileName}-400px.${fileFormat}`;
+        smallThumbOutput = `${smallThumbDir}\\${fileName}-100px.${fileFormat}`;
+      } else {
+        largeImageOutput = `${largeImageDir}/${fileName}-800px.${fileFormat}`;
+        thumbImageOutput = `${thumbImageDir}/${fileName}-400px.${fileFormat}`;
+        smallThumbOutput = `${smallThumbDir}/${fileName}-100px.${fileFormat}`;
+      }
 
-      try {
-        fs.accessSync(largeImageOutput, fs.constants.F_OK);
-        const renamedLargeImageOutput = `${largeImageDir}/${fileName}-800px-${syncTime}.${fileFormat}`;
-        fs.renameSync(largeImageOutput, renamedLargeImageOutput);
-        console.log(`LargeImage of ${fileNameExt} exists, so it was renamed.`);
-      } catch (error) { return errors.push(`Error: Failed renaming previous largeImage of ${fileNameExt}. ${error}`); }
+      const existingLargeImage = fs.existsSync(largeImageOutput);
+      if (existingLargeImage) {
+        let renamedLargeImageOutput = null;
+        if (systemOS == 'win32') {
+          renamedLargeImageOutput = `${largeImageDir}\\${fileName}-800px-${syncTime}.${fileFormat}`;
+        } else {
+          renamedLargeImageOutput = `${largeImageDir}/${fileName}-800px-${syncTime}.${fileFormat}`;
+        }
+        try {
+          fs.renameSync(largeImageOutput, renamedLargeImageOutput);
+          console.log(`LargeImage of ${fileNameExt} exists, so it was renamed.`);
+        } catch (err) { return errors.push(`Error: Failed renaming previous largeImage of ${fileNameExt}. ${err}`); }
+      }
 
-      try {
-        fs.accessSync(thumbImageOutput, fs.constants.F_OK);
-        const renamedThumbImageOutput = `${thumbImageDir}/${fileName}-400px-${syncTime}.${fileFormat}`;
-        fs.renameSync(thumbImageOutput, renamedThumbImageOutput);
-        console.log(`ThumbImage of ${fileNameExt} exists, so it was renamed.`);
-      } catch (error) { return errors.push(`Error: Failed renaming previous thumbImage of ${fileNameExt}. ${error}`); }
+      const existingThumbImage = fs.existsSync(thumbImageOutput);
+      if (existingThumbImage) {
+        let renamedThumbImageOutput = null;
+        if (systemOS == 'win32') {
+          renamedThumbImageOutput = `${thumbImageDir}\\${fileName}-400px-${syncTime}.${fileFormat}`;
+        } else {
+          renamedThumbImageOutput = `${thumbImageDir}/${fileName}-400px-${syncTime}.${fileFormat}`;
+        }
+        try {
+          fs.renameSync(thumbImageOutput, renamedThumbImageOutput);
+          console.log(`ThumbImage of ${fileNameExt} exists, so it was renamed.`);
+        } catch (err) { return errors.push(`Error: Failed renaming previous thumbImage of ${fileNameExt}. ${err}`); }
+      }
 
-
-      try {
-        fs.accessSync(smallThumbOutput, fs.constants.F_OK);
-        const renamedSmallThumbImageOutput = `${smallThumbDir}/${fileName}-100px-${syncTime}.${fileFormat}`;
-        fs.renameSync(smallThumbOutput, renamedSmallThumbImageOutput);
-        console.log(`SmallThumb of ${fileNameExt} exists, so it was renamed.`);
-      } catch (error) { return errors.push(`Error: Failed renaming previous smallThumbImage of ${fileNameExt}. ${error}`); }
+      const existingSmallThumbImage = fs.existsSync(smallThumbOutput);
+      if (existingSmallThumbImage) {
+        let renamedSmallThumbImageOutput = null;
+        if (systemOS == 'win32') {
+          renamedSmallThumbImageOutput = `${smallThumbDir}\\${fileName}-100px-${syncTime}.${fileFormat}`;
+        } else {
+          renamedSmallThumbImageOutput = `${smallThumbDir}/${fileName}-100px-${syncTime}.${fileFormat}`;
+        }
+        try {
+          fs.renameSync(smallThumbOutput, renamedSmallThumbImageOutput);
+          console.log(`SmallThumb of ${fileNameExt} exists, so it was renamed.`);
+        } catch (err) { return errors.push(`Error: Failed renaming previous smallThumbImage of ${fileNameExt}. ${err}`); }
+      }
 
       const image = nativeImage.createFromPath(fileDir);
 
