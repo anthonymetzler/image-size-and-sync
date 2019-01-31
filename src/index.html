@@ -1,33 +1,32 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8">
-    <title>Catalina Image Sizer</title>
-    <link rel="stylesheet" href="spectre.css">
+    <meta charset='UTF-8'>
+    <title>Image Size and Sync</title>
+    <link rel='stylesheet' href='spectre.css'>
   </head>
   <body></body>
     <div style='display: flex; flex-direction: column; align-items: center;'>
-      <div style='font-size: 1.5rem; margin: 8px 0;'>Catalina - Image Size and Sync</div>
-      <!-- All of the Node.js APIs are available in this renderer process. -->
+      <div style='font-size: 1.5rem; margin: 8px 0;'>Image Size and Sync</div>
       <div style='display: flex; flex-direction: column; align-items: center; margin: 8px 0;'>
-          <div><strong>Select the source directory for your original image files</strong></div>
-          <div><button id='select-source'>Select Source</button></div>
-          <div id='selected-source'></div>
-      </div>
-  
-      <div style='display: flex; flex-direction: column; align-items: center; margin: 8px 0;'>
-          <div><strong>Select the root images/product directory to save your resized images</strong></div>
-          <div><button id='select-output'>Select Output</button></div>
-          <div id='selected-output'></div>
+        <div><strong>Select the source directory containing the original images:</strong></div>
+        <div id='selected-source'></div>
+        <div style='margin-top: 8px;'><button id='select-source' class='btn'>Select Source</button></div>
       </div>
 
-      <div class="form-group">
-        <label class="form-radio form-inline"><input type="radio" name="file-type" value="png" checked id="png-export"><i class="form-icon"></i> PNG</label>
-        <label class="form-radio form-inline"><input type="radio" name="file-type" value="jpg" id="jpg-export"><i class="form-icon"></i> JPG</label>
+      <div style='display: flex; flex-direction: column; align-items: center; margin: 8px 0;'>
+        <div><strong>Select the parent directory of where to output the resized images:</strong></div>
+        <div id='selected-output'></div>
+        <div style='margin-top: 8px;'><button id='select-output' class='btn'>Select Output</button></div>
       </div>
-  
+
+      <div class='form-group'>
+        <label class='form-radio form-inline'><input type='radio' name='file-type' value='png' checked id='png-export'><i class='form-icon'></i> PNG</label>
+        <label class='form-radio form-inline'><input type='radio' name='file-type' value='jpg' id='jpg-export'><i class='form-icon'></i> JPG</label>
+      </div>
+
       <div style='margin: 8px 0;'>
-        <button id='start-process'>Run Resize Process</button>
+        <button id='start-process' class='btn btn-primary'>Run Resize Process</button>
       </div>
 
     </div>
