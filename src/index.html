@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Catalina Image Sizer</title>
+    <link rel="stylesheet" href="spectre.css">
+  </head>
+  <body></body>
+    <div style='display: flex; flex-direction: column; align-items: center;'>
+      <div style='font-size: 1.5rem; margin: 8px 0;'>Catalina - Image Size and Sync</div>
+      <!-- All of the Node.js APIs are available in this renderer process. -->
+      <div style='display: flex; flex-direction: column; align-items: center; margin: 8px 0;'>
+          <div><strong>Select the source directory for your original image files</strong></div>
+          <div><button id='select-source'>Select Source</button></div>
+          <div id='selected-source'></div>
+      </div>
+  
+      <div style='display: flex; flex-direction: column; align-items: center; margin: 8px 0;'>
+          <div><strong>Select the root images/product directory to save your resized images</strong></div>
+          <div><button id='select-output'>Select Output</button></div>
+          <div id='selected-output'></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-radio form-inline"><input type="radio" name="file-type" value="png" checked id="png-export"><i class="form-icon"></i> PNG</label>
+        <label class="form-radio form-inline"><input type="radio" name="file-type" value="jpg" id="jpg-export"><i class="form-icon"></i> JPG</label>
+      </div>
+  
+      <div style='margin: 8px 0;'>
+        <button id='start-process'>Run Resize Process</button>
+      </div>
+
+    </div>
+    <script>
+      // You can also require other files to run in this process
+      require('./renderer.js');
+    </script>
+  </body>
+</html>
