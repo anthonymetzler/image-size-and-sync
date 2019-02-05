@@ -1,7 +1,8 @@
-import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, nativeImage } from 'electron';
 
 const ProgressBar = require('electron-progressbar');
 const ipc = require('electron').ipcMain;
+// let iconImage = nativeImage.createFromPath(`${__dirname}/icon.png`);
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -18,6 +19,7 @@ const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    // icon: iconImage
   });
 
   // and load the index.html of the app.
