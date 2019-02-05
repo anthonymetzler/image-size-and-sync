@@ -2,9 +2,7 @@
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
 
-// Adding an event listener to an html button which will send open-dir-dialog to the main process
 const ipc = require('electron').ipcRenderer;
-// const { remote } = require('electron');
 
 const selectSourceBtn = document.getElementById('select-source');
 selectSourceBtn.addEventListener('click', (event) => {
@@ -58,7 +56,7 @@ const processImages = () => {
 
   fs.accessSync(outputDir, fs.constants.W_OK, (error) => {
     if (error) {
-      console.error('Error: Output directory is not accessible.');
+      ipc.send('show-error-dialog', ["Error: Output directory is not accessible.", `Directory: ${outputDir}`]);
       process.exit(1);
     }
   });
@@ -66,9 +64,8 @@ const processImages = () => {
   if (!(fs.existsSync(largeImageDir))) {
     try {
       fs.mkdirSync(largeImageDir);
-      console.log(`Created largeImage directory: ${largeImageDir}`);
     } catch (err) {
-      console.error('Error: Unable to create largeImage directory.');
+      ipc.send('show-error-dialog', ["Error: Unable to create largeImage directory.", `Directory: ${largeImageDir}`]);
       process.exit(1);
     }
   }
@@ -76,9 +73,8 @@ const processImages = () => {
   if (!(fs.existsSync(thumbImageDir))) {
     try {
       fs.mkdirSync(thumbImageDir);
-      console.log(`Created thumbImage directory: ${thumbImageDir}`);
     } catch (err) {
-      console.error('Error: Unable to create thumbImage directory.');
+      ipc.send('show-error-dialog', ["Error: Unable to create thumbImage directory.", `Directory: ${thumbImageDir}`]);
       process.exit(1);
     }
   }
@@ -86,16 +82,15 @@ const processImages = () => {
   if (!(fs.existsSync(smallThumbDir))) {
     try {
       fs.mkdirSync(smallThumbDir);
-      console.log(`Created smallThumbImage directory: ${smallThumbDir}`);
     } catch (err) {
-      console.error('Error: Unable to create smallThumbImage directory.');
+      ipc.send('show-error-dialog', ["Error: Unable to create smallThumbImage directory.", `Directory: ${smallThumbDir}`]);
       process.exit(1);
     }
   }
 
   fs.readdir(srcDir, (err, files) => {
     if (err) {
-      console.error('Error: Source directory is not accessible.', err);
+      ipc.send('show-error-dialog', ["Error: Source directory is not accessible.", `Error: ${err}`]);
       process.exit(1);
     }
 
@@ -141,7 +136,6 @@ const processImages = () => {
         }
         try {
           fs.renameSync(largeImageOutput, renamedLargeImageOutput);
-          console.log(`LargeImage of ${fileNameExt} exists, so it was renamed.`);
         } catch (err) { return errors.push(`Error: Failed renaming previous largeImage of ${fileNameExt}. ${err}`); }
       }
 
@@ -155,7 +149,6 @@ const processImages = () => {
         }
         try {
           fs.renameSync(thumbImageOutput, renamedThumbImageOutput);
-          console.log(`ThumbImage of ${fileNameExt} exists, so it was renamed.`);
         } catch (err) { return errors.push(`Error: Failed renaming previous thumbImage of ${fileNameExt}. ${err}`); }
       }
 
@@ -169,7 +162,6 @@ const processImages = () => {
         }
         try {
           fs.renameSync(smallThumbOutput, renamedSmallThumbImageOutput);
-          console.log(`SmallThumb of ${fileNameExt} exists, so it was renamed.`);
         } catch (err) { return errors.push(`Error: Failed renaming previous smallThumbImage of ${fileNameExt}. ${err}`); }
       }
 
@@ -203,7 +195,18 @@ const processImages = () => {
       i += 1;
       ipc.send('process-progressbar');
     });
-    return console.error(errors);
+    if (errors.length > 0) {
+      let logDir = null;
+      if (systemOS == 'win32') {
+        logDir = `${srcDir}\\errorLog-${syncTime}.json`;
+      } else {
+        logDir = `${srcDir}/errorLog-${syncTime}.json`;
+      }
+       
+      let errorJSON = JSON.stringify(errors);
+      fs.writeFile(logDir, errorJSON, (error) => { if (error) ipc.send('show-error-dialog', ["Writing Error Log Failed!", `Tried writing the Error Log here: ${logDir}`]); });
+      ipc.send('show-error-dialog', ["Process completed with errors!", `Check Error Log here: ${logDir}`]);
+    }
   });
 
   setTimeout(() => {

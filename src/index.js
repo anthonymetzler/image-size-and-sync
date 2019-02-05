@@ -1,8 +1,7 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 
 const ProgressBar = require('electron-progressbar');
 const ipc = require('electron').ipcMain;
-const dialog = require('electron').dialog;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -44,6 +43,8 @@ app.on('ready', () => {
   ipcMain.on('show-progressbar', (event, arg) => { showProgressbar(arg[0]); });
   ipcMain.on('process-progressbar', processingProgressBar);
   ipcMain.on('set-progressbar-completed', setProgressbarCompleted);
+  ipcMain.on('show-error-dialog', (event, arg) => { showErrorDialog(arg[0], arg[1]); });
+
 });
 
 // Quit when all windows are closed.
@@ -82,6 +83,10 @@ ipc.on('open-output-dialog', (event) => {
     if (files) event.sender.send('select-output', files);
   });
 });
+
+const showErrorDialog = (title, content) => {
+  dialog.showErrorBox(title, content);
+}
 
 const showProgressbar = (maxValue) => {
   if (progressBar) {
