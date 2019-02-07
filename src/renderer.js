@@ -102,6 +102,16 @@ const processImages = () => {
     const errors = [];
 
     files.forEach((file) => {
+      const acceptedImageFormats = ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tif' ]
+      const fileExt = path.extname(file);
+
+      if (!(acceptedImageFormats.includes(fileExt))) { 
+        i += 1;
+        ipc.send('process-progressbar');
+        return 
+      }
+      
+      const fileNameExt = path.basename(file);
       const fileName = path.parse(file).name;
       
       let fileDir = null;
@@ -110,8 +120,6 @@ const processImages = () => {
       } else {
         fileDir = `${srcDir}/${file}`;
       }
-
-      const fileNameExt = path.basename(file);
 
       let largeImageOutput = null;
       let thumbImageOutput = null;
@@ -170,9 +178,9 @@ const processImages = () => {
       if (image.isEmpty()) {
         errors.push(`Error: Source image ${fileNameExt} is empty.`);
       } else {
-        const resizedLargeImage = image.resize({ height: '800', quality: 'best' });
-        const resizedThumbImage = image.resize({ height: '400', quality: 'best' });
-        const resizedSmallThumbImage = image.resize({ height: '100', quality: 'best' });
+        const resizedLargeImage = image.resize({height: 800, quality: 'best'});
+        const resizedThumbImage = image.resize({ height: 400, quality: 'best' });
+        const resizedSmallThumbImage = image.resize({ height: 100, quality: 'best' });
 
         let largeImage = null;
         let thumbImage = null;
