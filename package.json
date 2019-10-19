@@ -50,6 +50,7 @@
     "electron-compile": "^6.4.4",
     "electron-progressbar": "^1.2.0",
     "electron-squirrel-startup": "^1.0.0",
+    "jimp": "^0.8.4",
     "moment": "^2.24.0"
   },
   "devDependencies": {
