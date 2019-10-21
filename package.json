@@ -1,7 +1,7 @@
 {
   "name": "image-size-and-sync",
   "productName": "image-size-and-sync",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Electron application for resizing and naming images then saving them to their proper directories: largeImage (800px), thumb (400px), and smallThumb (100px). Existing images are renamed with a timestamp before the new one is processed.",
   "main": "src/index.js",
   "scripts": {
@@ -50,12 +50,16 @@
     "electron-compile": "^6.4.4",
     "electron-progressbar": "^1.2.0",
     "electron-squirrel-startup": "^1.0.0",
-    "moment": "^2.24.0"
+    "jimp": "^0.8.4",
+    "moment": "^2.24.0",
+    "regenerator-runtime": "^0.13.3",
+    "update": "^0.7.4"
   },
   "devDependencies": {
     "babel-plugin-transform-async-to-generator": "^6.24.1",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
+    "electron": "^6.0.12",
     "electron-forge": "^5.2.4",
     "electron-prebuilt-compile": "4.0.0",
     "eslint": "^3.19.0",
