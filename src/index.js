@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain, dialog, nativeImage } from 'electron';
 
 const ProgressBar = require('electron-progressbar');
 const ipc = require('electron').ipcMain;
-// let iconImage = nativeImage.createFromPath(`${__dirname}/icon.png`);
+let iconImage = nativeImage.createFromPath(`${__dirname}/icon.png`);
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -19,14 +19,14 @@ const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
-    // icon: iconImage
+    icon: iconImage
   });
 
   // and load the index.html of the app.
   mainWindow.loadURL(`file://${__dirname}/index.html`);
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {
@@ -91,10 +91,6 @@ const showErrorDialog = (title, content) => {
 }
 
 const showProgressbar = (maxValue) => {
-  if (progressBar) {
-    return;
-  }
-
   progressBar = new ProgressBar({
     indeterminate: false,
     maxValue,
@@ -107,7 +103,6 @@ const showProgressbar = (maxValue) => {
 
   progressBar.on('completed', () => {
     progressBar.detail = 'Image Processing Completed. Exiting...';
-    progressBar = null;
   });
 
   progressBar.on('progress', (value) => {
@@ -124,5 +119,6 @@ const processingProgressBar = () => {
 const setProgressbarCompleted = () => {
   if (progressBar) {
     progressBar.setCompleted();
+    progressBar.close();
   }
 };
