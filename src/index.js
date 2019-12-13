@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain, dialog, nativeImage } from 'electron';
 
 const ProgressBar = require('electron-progressbar');
 const ipc = require('electron').ipcMain;
+
 let iconImage = nativeImage.createFromPath(`${__dirname}/icon.png`);
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.

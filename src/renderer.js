@@ -30,7 +30,6 @@ const processImages = async () => {
   const fs = require('fs');
   const path = require('path');
   const os = require('os');
-  const { nativeImage } = require('electron');
   const moment = require('moment');
   const Jimp = require('jimp');
 
@@ -97,14 +96,13 @@ const processImages = async () => {
     process.exit(1);
   }
 
-  const maxValue = files.length;
+  const maxValue = (files.length - 1);
   ipc.send('show-progressbar', [maxValue]);
 
   const syncTime = moment().format('YYYYMMDDHHmmss');
   let filesProcessed = 0;
   const errors = [];
 
-  // files.forEach((file) => {
   for (let j = 0; j < files.length; j++) {
     const acceptedImageFormats = ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tif'];
     const fileExt = path.extname(files[j]);
@@ -190,69 +188,41 @@ const processImages = async () => {
 
     if (fileFormat === 'jpg') {
       try {
-        await srcImg.background(0xFFFFFFFF).resize(Jimp.AUTO, 800).quality(100).writeAsync(largeImageOutput);
+        srcImg.background(0xFFFFFFFF).resize(Jimp.AUTO, 800).quality(100).write(largeImageOutput);
       } catch (err) {
         errors.push(`Error: Failed saving largeImage of ${fileNameExt}. ${err}`);
       }
 
       try {
-        await srcImg.background(0xFFFFFFFF).resize(Jimp.AUTO, 400).quality(100).writeAsync(thumbImageOutput);
+        srcImg.background(0xFFFFFFFF).resize(Jimp.AUTO, 400).quality(100).write(thumbImageOutput);
       } catch (err) {
         errors.push(`Error: Failed saving thumbImage of ${fileNameExt}. ${err}`);
       }
 
       try {
-        await srcImg.background(0xFFFFFFFF).resize(Jimp.AUTO, 100).quality(100).writeAsync(smallThumbOutput);
+        srcImg.background(0xFFFFFFFF).resize(Jimp.AUTO, 100).quality(100).write(smallThumbOutput);
       } catch (err) {
         errors.push(`Error: Failed saving smallThumbImage of ${fileNameExt}. ${err}`);
       }
     } else {
       try {
-        await srcImg.resize(Jimp.AUTO, 800).writeAsync(largeImageOutput);
+        srcImg.resize(Jimp.AUTO, 800).write(largeImageOutput);
       } catch (err) {
         errors.push(`Error: Failed saving largeImage of ${fileNameExt}. ${err}`);
       }
 
       try {
-        await srcImg.resize(Jimp.AUTO, 400).writeAsync(thumbImageOutput);
+        srcImg.resize(Jimp.AUTO, 400).write(thumbImageOutput);
       } catch (err) {
         errors.push(`Error: Failed saving thumbImage of ${fileNameExt}. ${err}`);
       }
 
       try {
-        await srcImg.resize(Jimp.AUTO, 100).writeAsync(smallThumbOutput);
+        srcImg.resize(Jimp.AUTO, 100).write(smallThumbOutput);
       } catch (err) {
         errors.push(`Error: Failed saving smallThumbImage of ${fileNameExt}. ${err}`);
       }
     }
-
-    // const image = nativeImage.createFromPath(fileDir);
-
-    // if (image.isEmpty()) {
-    //   errors.push(`Error: Source image ${fileNameExt} is empty.`);
-    // } else {
-    //   const resizedLargeImage = image.resize({ height: 800, quality: 'best' });
-    //   const resizedThumbImage = image.resize({ height: 400, quality: 'best' });
-    //   const resizedSmallThumbImage = image.resize({ height: 100, quality: 'best' });
-
-    //   let largeImage = null;
-    //   let thumbImage = null;
-    //   let smallThumbImage = null;
-
-    //   if (fileFormat === 'jpg') {
-    //     largeImage = resizedLargeImage.toJPEG(100);
-    //     thumbImage = resizedThumbImage.toJPEG(100);
-    //     smallThumbImage = resizedSmallThumbImage.toJPEG(100);
-    //   } else {
-    //     largeImage = resizedLargeImage.toPNG(1.0);
-    //     thumbImage = resizedThumbImage.toPNG(1.0);
-    //     smallThumbImage = resizedSmallThumbImage.toPNG(1.0);
-    //   }
-
-    //   fs.writeFile(largeImageOutput, largeImage, (err) => { if (err) errors.push(`Error: Failed saving largeImage of ${fileNameExt}. ${err}`); });
-    //   fs.writeFile(thumbImageOutput, thumbImage, (err) => { if (err) errors.push(`Error: Failed saving thumbImage of ${fileNameExt}. ${err}`); });
-    //   fs.writeFile(smallThumbOutput, smallThumbImage, (err) => { if (err) errors.push(`Error: Failed saving smallThumbImage of ${fileNameExt}. ${err}`); });
-    // }
 
     filesProcessed += 1;
     ipc.send('process-progressbar');
